@@ -34,6 +34,7 @@ const AuthProvider = ({ children }) => {
   const veryfieEmailAddress = () => {
     return sendEmailVerification(auth.currentUser);
   };
+
   const UpdateProfile = (name, photoURL) => {
     setLoader(true);
     return updateProfile(auth.currentUser, {
@@ -54,7 +55,9 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      if (currentUser === null || currentUser.emailVerified) {
+        setUser(currentUser);
+      }
       setLoader(false);
     });
     return () => {
@@ -65,6 +68,7 @@ const AuthProvider = ({ children }) => {
   const authInfo = {
     user,
     loader,
+    setLoader,
     CreateUser,
     veryfieEmailAddress,
     GoogleSignIn,

@@ -1,10 +1,11 @@
 import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthProvider";
+import toast from "react-hot-toast";
 
 const LogIn = () => {
   const [error, setError] = useState("");
-  const { LogIn } = useContext(AuthContext);
+  const { user, LogIn, setLoader } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/";
@@ -22,9 +23,19 @@ const LogIn = () => {
         console.log(result.user);
         form.reset();
         setError("");
-        navigate(from, { replace: true });
+        if (user.emailVerified) {
+          navigate(from, { replace: true });
+        } else {
+          toast.error("Your email is not verified!!");
+        }
       })
-      .catch((error) => setError(error.message.slice(10, -1)));
+      .catch((error) => {
+        setError(error.message);
+        // toast.error(error.message);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
 
   return (
@@ -63,7 +74,7 @@ const LogIn = () => {
                 <Link to="">Forgot password?</Link>
               </label>
             </div>
-            <div className="text-red-700">{error}</div>
+            <div className="text-red-700 text-sm">{error}</div>
             <div className="form-control mt-6">
               <button className="btn btn-primary">Login</button>
             </div>
